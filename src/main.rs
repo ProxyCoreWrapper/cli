@@ -15,7 +15,7 @@ async fn main() -> ExitCode {
     let mut client = match client::PCWClient::connect(&config.server.uds_path).await {
         Ok(client) => client,
         Err(e) => {
-            eprintln!("Failed to connect to server: {e}");
+            eprintln!("Failed to connect to server: {e:#}");
             return ExitCode::FAILURE;
         }
     };
@@ -38,33 +38,71 @@ async fn main() -> ExitCode {
             },
             cli::ConfigsCommands::Edit {
                 config_id,
-                new_config,
+                args:
+                    cli::ConfigArgs {
+                        new_config,
+                        core_tag,
+                    },
             } => {
-                let config_content = if new_config == "-" {
-                    eprintln!("Reading config from stdin...");
-                    let mut buffer = String::new();
-                    if let Err(e) = std::io::stdin().read_line(&mut buffer) {
-                        eprintln!("Error reading from stdin: {}", e);
-                        return ExitCode::FAILURE;
+                let config_content = match new_config {
+                    Some(new_config) => {
+                        if new_config == "-" {
+                            println!("Reading config from stdin...");
+                            let mut buffer = String::new();
+                            if let Err(e) = std::io::stdin().read_line(&mut buffer) {
+                                eprintln!("Error reading from stdin: {}", e);
+                                return ExitCode::FAILURE;
+                            }
+                            Some(buffer.trim().to_string())
+                        } else {
+                            match std::fs::read_to_string(new_config) {
+                                Ok(content) => Some(content),
+                                Err(e) => {
+                                    eprintln!("Error reading config file: {}", e);
+                                    return ExitCode::FAILURE;
+                                }
+                            }
+                        }
                     }
-                    let config_content = buffer.trim().to_string();
-                    if let Err(e) = client.configs.edit(config_id.clone(), config_content).await {
-                        eprintln!("Error editing config: {}", e);
-                        return ExitCode::FAILURE;
-                    }
-
-                    buffer
-                } else {
-                    new_config
+                    None => None,
                 };
 
-                if let Err(e) = client.configs.edit(config_id, config_content).await {
+                if let Err(e) = client
+                    .configs
+                    .edit(config_id, config_content, core_tag)
+                    .await
+                {
                     eprintln!("Error editing config: {}", e);
                     return ExitCode::FAILURE;
                 }
             }
         },
-        cli::Sections::Service {} => {}
+        cli::Sections::Management { action } => match action {
+            cli::ManagementCommands::Start { config_id } => {
+                if let Err(e) = client.management.start(config_id).await {
+                    eprintln!("Error starting service: {}", e);
+                    return ExitCode::FAILURE;
+                }
+            }
+            cli::ManagementCommands::Restart { config_id } => {
+                if let Err(e) = client.management.restart(config_id).await {
+                    eprintln!("Error restarting service: {}", e);
+                    return ExitCode::FAILURE;
+                }
+            }
+            cli::ManagementCommands::Stop { config_id } => {
+                if let Err(e) = client.management.stop(config_id).await {
+                    eprintln!("Error stopping service: {}", e);
+                    return ExitCode::FAILURE;
+                }
+            }
+            cli::ManagementCommands::Logs { config_id } => {
+                if let Err(e) = client.management.print_log_stream(config_id).await {
+                    eprintln!("Error receiving log stream: {}", e);
+                    return ExitCode::FAILURE;
+                }
+            }
+        },
     }
 
     ExitCode::SUCCESS
