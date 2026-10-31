@@ -41,4 +41,11 @@ impl Configs {
             .await
             .map(|_| ())
     }
+
+    pub async fn delete(&mut self, config_id: String) -> Result<()> {
+        self.client
+            .delete_config(proto::DeleteConfigRequest { config_id })
+            .await
+            .map(|_| ())
+    }
 }

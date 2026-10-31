@@ -20,6 +20,9 @@ pub enum ConfigsCommands {
         #[command(flatten)]
         args: ConfigArgs,
     },
+    Delete {
+        config_id: String,
+    },
 }
 
 #[derive(Subcommand, Debug)]
