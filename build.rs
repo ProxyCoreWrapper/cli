@@ -4,6 +4,8 @@ use clap_complete::{generate_to, Shell};
 include!("src/cli.rs");
 
 fn main() -> std::io::Result<()> {
+    std::fs::create_dir_all("autocompletion")?;
+
     for &shell in Shell::value_variants() {
         generate_to(shell, &mut Cli::command(), "pcw-cli", "autocompletion")?;
     }
