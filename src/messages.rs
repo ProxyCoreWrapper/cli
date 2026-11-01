@@ -18,7 +18,13 @@ pub const CONFIG_DELETED: &str = "Config deleted.";
 pub const SERVICE_STARTED: &str = "Service started.";
 pub const SERVICE_RESTARTED: &str = "Service restarted.";
 pub const SERVICE_STOPPED: &str = "Service stopped.";
+pub const NO_CONFIGS: &str = "No configurations found.";
+pub const CONFIG_LIST_ID_HEADER: &str = "CONFIG ID";
+pub const CONFIG_LIST_CORE_HEADER: &str = "CORE";
+pub const CONFIG_LIST_STATE_HEADER: &str = "STATE";
+pub const CONFIG_LIST_SEPARATOR: &str = "-";
+pub const CONFIG_LIST_UNKNOWN_STATE: &str = "UNKNOWN";
 
 pub fn format_status(status: &Status) -> String {
-    format!("{:?}: {}", status.code(), status.message())
+    format!("{:?} {}", status.code(), status.message())
 }

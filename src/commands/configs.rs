@@ -1,10 +1,10 @@
-use crate::{cli, client::PCWClient, messages};
+use crate::{cli, client::{self, PCWClient}, messages};
 use std::process::ExitCode;
 
 pub async fn execute(client: &mut PCWClient, action: cli::ConfigsCommands) -> ExitCode {
     match action {
         cli::ConfigsCommands::List => match client.configs.list().await {
-            Ok(configs) => println!("{configs:?}"),
+            Ok(configs) => print_configs(&configs),
             Err(error) => {
                 eprintln!(
                     "{}: {}",
@@ -71,6 +71,56 @@ pub async fn execute(client: &mut PCWClient, action: cli::ConfigsCommands) -> Ex
     }
 
     ExitCode::SUCCESS
+}
+
+fn print_configs(configs: &[client::proto::Config]) {
+    if configs.is_empty() {
+        println!("{}", messages::NO_CONFIGS);
+        return;
+    }
+
+    let id_width = configs
+        .iter()
+        .map(|config| config.config_id.len())
+        .max()
+        .unwrap_or(0)
+        .max(messages::CONFIG_LIST_ID_HEADER.len());
+    let core_width = configs
+        .iter()
+        .map(|config| config.core_tag.len())
+        .max()
+        .unwrap_or(0)
+        .max(messages::CONFIG_LIST_CORE_HEADER.len());
+
+    println!(
+        "{:<id_width$}  {:<core_width$}  {}",
+        messages::CONFIG_LIST_ID_HEADER,
+        messages::CONFIG_LIST_CORE_HEADER,
+        messages::CONFIG_LIST_STATE_HEADER,
+        id_width = id_width,
+        core_width = core_width
+    );
+    println!(
+        "{:<id_width$}  {:<core_width$}  {}",
+        messages::CONFIG_LIST_SEPARATOR.repeat(id_width),
+        messages::CONFIG_LIST_SEPARATOR.repeat(core_width),
+        messages::CONFIG_LIST_SEPARATOR.repeat(messages::CONFIG_LIST_STATE_HEADER.len()),
+        id_width = id_width,
+        core_width = core_width
+    );
+
+    for config in configs {
+        let state = client::proto::config::State::try_from(config.state)
+            .map(|state| state.as_str_name())
+            .unwrap_or(messages::CONFIG_LIST_UNKNOWN_STATE);
+        println!(
+            "{:<id_width$}  {:<core_width$}  {state}",
+            config.config_id,
+            config.core_tag,
+            id_width = id_width,
+            core_width = core_width
+        );
+    }
 }
 
 fn read_config(new_config: Option<String>) -> Result<Option<String>, String> {

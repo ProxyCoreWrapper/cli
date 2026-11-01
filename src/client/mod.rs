@@ -1,6 +1,6 @@
 mod configs;
 mod management;
-mod proto;
+pub(crate) mod proto;
 
 use anyhow::{Context, Result};
 use hyper_util::rt::tokio::TokioIo;

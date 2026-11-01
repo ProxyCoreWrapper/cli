@@ -81,6 +81,10 @@ Read a configuration:
 pcw-cli configs get CONFIG_ID
 ```
 
+```sh
+pcw-cli configs delete CONFIG_ID
+```
+
 Create or update a configuration by reading its contents from a file:
 
 ```sh
