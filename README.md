@@ -94,7 +94,7 @@ pcw-cli configs edit CONFIG_ID --new-config /path/to/config.json --core-tag sing
 Use `-` to read the configuration from standard input:
 
 ```sh
-cat config.json | pcw-cli configs edit CONFIG_ID --new-config - --core-tag sing-box
+cat config.json | pcw-cli configs edit CONFIG_ID --new-config - --core-tag sing-box --auto-restart true
 ```
 
 Manage a configuration:

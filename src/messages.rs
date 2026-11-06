@@ -21,6 +21,7 @@ pub const SERVICE_STOPPED: &str = "Service stopped.";
 pub const NO_CONFIGS: &str = "No configurations found.";
 pub const CONFIG_LIST_ID_HEADER: &str = "CONFIG ID";
 pub const CONFIG_LIST_CORE_HEADER: &str = "CORE";
+pub const CONFIG_LIST_AUTO_RESTART_HEADER: &str = "AUTO_RESTART";
 pub const CONFIG_LIST_STATE_HEADER: &str = "STATE";
 pub const CONFIG_LIST_SEPARATOR: &str = "-";
 pub const CONFIG_LIST_UNKNOWN_STATE: &str = "UNKNOWN";

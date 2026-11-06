@@ -31,6 +31,7 @@ pub async fn execute(client: &mut PCWClient, action: cli::ConfigsCommands) -> Ex
                 cli::ConfigArgs {
                     new_config,
                     core_tag,
+                    auto_restart,
                 },
         } => {
             let config_content = match read_config(new_config) {
@@ -43,7 +44,7 @@ pub async fn execute(client: &mut PCWClient, action: cli::ConfigsCommands) -> Ex
 
             if let Err(error) = client
                 .configs
-                .edit(config_id, config_content, core_tag)
+                .edit(config_id, config_content, core_tag, auto_restart)
                 .await
             {
                 eprintln!(
@@ -91,19 +92,23 @@ fn print_configs(configs: &[client::proto::Config]) {
         .max()
         .unwrap_or(0)
         .max(messages::CONFIG_LIST_CORE_HEADER.len());
+    let auto_restart_width = messages::CONFIG_LIST_AUTO_RESTART_HEADER.len();
 
     println!(
-        "{:<id_width$}  {:<core_width$}  {}",
+        "{:<id_width$}  {:<core_width$}  {:<auto_restart_width$}  {}",
         messages::CONFIG_LIST_ID_HEADER,
         messages::CONFIG_LIST_CORE_HEADER,
+        messages::CONFIG_LIST_AUTO_RESTART_HEADER,
         messages::CONFIG_LIST_STATE_HEADER,
         id_width = id_width,
-        core_width = core_width
+        core_width = core_width,
+        auto_restart_width = auto_restart_width
     );
     println!(
-        "{:<id_width$}  {:<core_width$}  {}",
+        "{:<id_width$}  {:<core_width$}  {:<auto_restart_width$}  {}",
         messages::CONFIG_LIST_SEPARATOR.repeat(id_width),
         messages::CONFIG_LIST_SEPARATOR.repeat(core_width),
+        messages::CONFIG_LIST_SEPARATOR.repeat(auto_restart_width),
         messages::CONFIG_LIST_SEPARATOR.repeat(messages::CONFIG_LIST_STATE_HEADER.len()),
         id_width = id_width,
         core_width = core_width
@@ -114,11 +119,13 @@ fn print_configs(configs: &[client::proto::Config]) {
             .map(|state| state.as_str_name())
             .unwrap_or(messages::CONFIG_LIST_UNKNOWN_STATE);
         println!(
-            "{:<id_width$}  {:<core_width$}  {state}",
+            "{:<id_width$}  {:<core_width$}  {:<auto_restart_width$}  {state}",
             config.config_id,
             config.core_tag,
+            config.auto_restart,
             id_width = id_width,
-            core_width = core_width
+            core_width = core_width,
+            auto_restart_width = auto_restart_width
         );
     }
 }

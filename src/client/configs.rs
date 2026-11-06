@@ -35,9 +35,20 @@ impl Configs {
             .map(|response| response.into_inner().config)
     }
 
-    pub async fn edit(&mut self, config_id: String, config: Option<String>, core_tag: Option<String>) -> Result<()> {
+    pub async fn edit(
+        &mut self,
+        config_id: String,
+        config: Option<String>,
+        core_tag: Option<String>,
+        auto_restart: Option<bool>,
+    ) -> Result<()> {
         self.client
-            .edit_config(proto::EditConfigRequest { config_id, config, core_tag })
+            .edit_config(proto::EditConfigRequest {
+                config_id,
+                config,
+                core_tag,
+                auto_restart,
+            })
             .await
             .map(|_| ())
     }
