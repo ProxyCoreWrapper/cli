@@ -1,4 +1,8 @@
-use crate::{cli, client::{self, PCWClient}, messages};
+use crate::{
+    cli,
+    client::{self, PCWClient},
+    messages,
+};
 use std::process::ExitCode;
 
 pub async fn execute(client: &mut PCWClient, action: cli::ConfigsCommands) -> ExitCode {
@@ -25,6 +29,46 @@ pub async fn execute(client: &mut PCWClient, action: cli::ConfigsCommands) -> Ex
                 return ExitCode::FAILURE;
             }
         },
+        cli::ConfigsCommands::ExportLinks { config_id, core } => {
+            let Some(core) = proxy_links_exporter::Core::parse(&core) else {
+                eprintln!("{}: {core}", messages::EXPORT_LINKS_CORE_ERROR);
+                return ExitCode::FAILURE;
+            };
+            let config = match client.configs.get(config_id).await {
+                Ok(config) => config,
+                Err(error) => {
+                    eprintln!(
+                        "{}: {}",
+                        messages::EXPORT_LINKS_ERROR,
+                        messages::format_status(&error)
+                    );
+                    return ExitCode::FAILURE;
+                }
+            };
+            let result = match core.export(&config) {
+                Ok(result) => result,
+                Err(error) => {
+                    eprintln!("{}: {error}", messages::EXPORT_LINKS_ERROR);
+                    return ExitCode::FAILURE;
+                }
+            };
+            for warning in result.warnings {
+                eprintln!("Warning: {warning}");
+            }
+            for (direction, links) in [("Inbounds", result.inbounds), ("Outbounds", result.outbounds)]
+            {
+                if links.is_empty() {
+                    continue;
+                }
+                println!("{direction}:");
+                for link in links {
+                    if let Some(tag) = link.tag {
+                        print!("{tag}: ");
+                    }
+                    println!("{}", link.uri);
+                }
+            }
+        }
         cli::ConfigsCommands::Edit {
             config_id,
             args:

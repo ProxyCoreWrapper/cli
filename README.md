@@ -81,6 +81,15 @@ Read a configuration:
 pcw-cli configs get CONFIG_ID
 ```
 
+Export supported proxy links from both inbounds and outbounds:
+
+```sh
+pcw-cli configs export-links CONFIG_ID xray-core
+pcw-cli configs export-links CONFIG_ID sing-box
+```
+
+The command uses [proxy-liks-exporter](https://github.com/ProxyCoreWrapper/proxy-links-exporter) to parse the configuration and generate the proxy links. Unsupported or malformed entries are skipped with warnings on stderr.
+
 ```sh
 pcw-cli configs delete CONFIG_ID
 ```

@@ -23,6 +23,13 @@ pub enum ConfigsCommands {
         /// Configuration identifier.
         config_id: String,
     },
+    /// Export supported proxy links from a configuration.
+    ExportLinks {
+        /// Configuration identifier.
+        config_id: String,
+        /// Configuration core.
+        core: String,
+    },
     /// Create or update a configuration.
     Edit {
         /// Configuration identifier.

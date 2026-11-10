@@ -4,6 +4,8 @@ pub const READING_CONFIG_STDIN: &str = "Reading config from stdin...";
 
 pub const LIST_CONFIGS_ERROR: &str = "Error listing configs";
 pub const GET_CONFIG_ERROR: &str = "Error getting config";
+pub const EXPORT_LINKS_ERROR: &str = "Error exporting links";
+pub const EXPORT_LINKS_CORE_ERROR: &str = "Unsupported core";
 pub const READ_CONFIG_FILE_ERROR: &str = "Error reading config file";
 pub const READ_STDIN_ERROR: &str = "Error reading from stdin";
 pub const EDIT_CONFIG_ERROR: &str = "Error editing config";
